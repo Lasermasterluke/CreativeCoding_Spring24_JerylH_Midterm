@@ -20,44 +20,44 @@ function draw() {
 
 	// draw the steps
 	for (let i = 0; i < steps; i++) {
-  	// draw the top face of the step
-    beginShape();
-    vertex(startX + i * stepWidth, startY - i * stepHeight);
-	//ellipse(startX + (i + 0.5) * stepWidth, startY - (i + 1) * stepHeight, 10, 10);
-    vertex(startX + (i + 1) * stepWidth, startY - i * stepHeight);
-    vertex(startX + (i + 0.5) * stepWidth, startY - (i + 1) * stepHeight);
-    vertex(startX + (i - 0.5) * stepWidth, startY - (i + 1) * stepHeight);
-    endShape(CLOSE);
+		// draw the top face of the step
+		beginShape();
+		vertex(startX + i * stepWidth, startY - i * stepHeight);
+		//ellipse(startX + (i + 0.5) * stepWidth, startY - (i + 1) * stepHeight, 10, 10);
+		vertex(startX + (i + 1) * stepWidth, startY - i * stepHeight);
+		vertex(startX + (i + 0.5) * stepWidth, startY - (i + 1) * stepHeight);
+		vertex(startX + (i - 0.5) * stepWidth, startY - (i + 1) * stepHeight);
+		endShape(CLOSE);
 
-    // draw the front face of the step
-	//ellipse(startX + (i + 1) * stepWidth, startY - i * stepHeight, 10, 10);
-    beginShape();
-    vertex(startX + i * stepWidth, startY - i * stepHeight);
-    vertex(startX + (i + 1) * stepWidth, startY - i * stepHeight);
-    vertex(startX + (i + 1) * stepWidth, startY - i * stepHeight + depth);
-    vertex(startX + i * stepWidth, startY - i * stepHeight + depth);
-    endShape(CLOSE);
-		
-	// draw line to finish left face of step
-	line(
-		startX + i * stepWidth,
-		startY - i * stepHeight,
-		
-	)
-	
-	// draw over lines to create a flat looking face
-	for (let i = 0; i < steps - 1; i++) {
-		stroke(200);
-		strokeWeight(1);
+		// draw the front face of the step
+		//ellipse(startX + (i + 1) * stepWidth, startY - i * stepHeight, 10, 10);
+		beginShape();
+		vertex(startX + i * stepWidth, startY - i * stepHeight);
+		vertex(startX + (i + 1) * stepWidth, startY - i * stepHeight);
+		vertex(startX + (i + 1) * stepWidth, startY - i * stepHeight + depth);
+		vertex(startX + i * stepWidth, startY - i * stepHeight + depth);
+		endShape(CLOSE);
+
+		// draw line to finish left face of step
 		line(
-			startX + (i + 1) * stepWidth,
-			startY - i * stepHeight + 1,
-			startX + (i + 1) * stepWidth,
-			startY - i * stepHeight + depth
-		);
-		stroke(0);
-		strokeWeight(1);
-	}
+			startX + i * stepWidth,
+			startY - i * stepHeight,
+
+		)
+
+		// draw over lines to create a flat looking face
+		for (let i = 0; i < steps - 1; i++) {
+			stroke(200);
+			strokeWeight(1);
+			line(
+				startX + (i + 1) * stepWidth,
+				startY - i * stepHeight + 1,
+				startX + (i + 1) * stepWidth,
+				startY - i * stepHeight + depth
+			);
+			stroke(0);
+			strokeWeight(1);
+		}
 
 }
 
