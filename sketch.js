@@ -12,6 +12,10 @@ function draw() {
 	hill.draw();
 }
 
+function windowResized() {
+	resizeCanvas(windowWidth, windowHeight);
+}
+
 class Hill {
 	constructor() {
 		this.detail = 0.005; // detail level of the hill's shape
