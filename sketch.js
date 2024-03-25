@@ -1,105 +1,34 @@
+// global variable for the hill
+let hill;
+
 function setup() {
-	createCanvas(windowWidth, windowHeight); // set the canvas to match the window dimensions
-	noLoop(); // disable continuous drawing
+	createCanvas(windowWidth, windowHeight);
+	// initialize hill
+	hill = new Hill();
 }
 
 function draw() {
-	background(255); // set background color to white
-	stroke(0); // set stroke color to black for the shapes
-	fill(200); // set fill color to a light gray for the steps
-
-	// define the dimensions and number of the steps
-	let stepWidth = 50;
-	let stepHeight = 10;
-	let depth = 1000;
-	let steps = 10;
-
-	// calculate the starting position
-	let startX = width / 2 - steps * (stepWidth / 2);
-	let startY = height / 2 + steps * (stepHeight / 2);
-
-	// draw the steps
-	for (let i = 0; i < steps; i++) {
-		// draw the top face of the step
-		beginShape();
-		vertex(startX + i * stepWidth, startY - i * stepHeight);
-		//ellipse(startX + (i + 0.5) * stepWidth, startY - (i + 1) * stepHeight, 10, 10);
-		vertex(startX + (i + 1) * stepWidth, startY - i * stepHeight);
-		vertex(startX + (i + 0.5) * stepWidth, startY - (i + 1) * stepHeight);
-		vertex(startX + (i - 0.5) * stepWidth, startY - (i + 1) * stepHeight);
-		endShape(CLOSE);
-
-		// draw the front face of the step
-		//ellipse(startX + (i + 1) * stepWidth, startY - i * stepHeight, 10, 10);
-		beginShape();
-		vertex(startX + i * stepWidth, startY - i * stepHeight);
-		vertex(startX + (i + 1) * stepWidth, startY - i * stepHeight);
-		vertex(startX + (i + 1) * stepWidth, startY - i * stepHeight + depth);
-		vertex(startX + i * stepWidth, startY - i * stepHeight + depth);
-		endShape(CLOSE);
-
-		// draw line to finish left face of step
-		line(
-			startX + i * stepWidth,
-			startY - i * stepHeight,
-
-		)
-
-		// draw over lines to create a flat looking face
-		for (let i = 0; i < steps - 1; i++) {
-			stroke(200);
-			strokeWeight(1);
-			line(
-				startX + (i + 1) * stepWidth,
-				startY - i * stepHeight + 1,
-				startX + (i + 1) * stepWidth,
-				startY - i * stepHeight + depth
-			);
-			stroke(0);
-			strokeWeight(1);
-		}
-
+	background(220);
+	hill.draw();
 }
 
-  // draw the vertical lines for the steps on the left side
-	for (let j = -1; j < steps - 1; j++) {
-		if (j == -1) {
-			line(
-				startX + (j + 0.5) * stepWidth,
-				startY - (j + 1) * stepHeight - stepHeight,
-				startX + (j + 0.5) * stepWidth,
-				startY - (j + 1) * stepHeight + depth
-			)
-		} else {
-			line(
-				startX + (j + 0.5) * stepWidth,
-				startY - (j + 1) * stepHeight,
-				startX + (j + 0.5) * stepWidth,
-				startY - (j + 1) * stepHeight - stepHeight
-			);
-		}
-
+class Hill {
+	constructor() {
+		this.detail = 0.005; // detail level of the hill's shape
+		this.steepness = 0.4; // controls the vertical scale of the hill
 	}
-  
-  // connect the bottom-most step to the top-most step to create the illusion
-//  line(
-//    startX,
-//    startY + depth,
-//    startX - stepWidth / 2,
-//    startY - stepHeight + depth
-//  );
-//  
-//  line(
-//    startX - stepWidth / 2,
-//    startY - stepHeight + depth,
-//    startX,
-//    startY - stepHeight
-//  );
-//  
-//  line(
-//    startX,
-//    startY - stepHeight,
-//    startX + stepWidth,
-//    startY - stepHeight
-//  );
+
+	draw() {
+		noFill();
+		beginShape();
+		let startHeight = height * this.steepness; // starting height at the left of the canvas
+		for (let x = 0; x < width; x++) {
+			// dynamically adjust the y-coordinate based on noise and scale it based on the canvas height
+			let y = map(noise(x * this.detail), 0, 1, startHeight, 0) + (windowHeight / 2);
+			// create an upward slope by decreasing startheight gradually
+			startHeight -= this.steepness;
+			vertex(x, y);
+		}
+		endShape();
+	}
 }
