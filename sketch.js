@@ -68,19 +68,17 @@ class Hill {
         this.details.forEach(detail => {
             detail.x -= this.scrollSpeed * 200; // scroll horizontally
 			
-			// calculate the hill's y value at this x position to ensure details are beneath the line
-			let hillY = this.getY(detail.x);
+			detail.y += Math.abs(this.slope * this.scrollSpeed * 200); 
 
             // reset details to the right side of the screen if they go out of bounds
-			if (detail.x < -detail.size) { 
+			if (detail.x < -detail.size || detail.y > height) { 
 				detail.originalX = width + random(100); // place it off the right edge with some randomness
 				detail.x = detail.originalX;
 
-				detail.y = random(hillY, height - detail.size / 2); // ranndomize y value between line and bottom of screen
-			} else {
-				detail.y = max(detail.y, hillY + detail.size / 2 + 20);
+				// calculate the hill's y value at this x position to ensure details are beneath the line
+				let hillY = this.getY(detail.x);
+				detail.y = random(hillY + detail.size / 2, height - detail.size / 2);
 			}
-
             this.drawDetail(detail.x, detail.y, detail.size, detail.type);
         });
 }
