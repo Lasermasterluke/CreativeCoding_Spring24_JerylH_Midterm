@@ -11,11 +11,13 @@ function setup() {
 }
 
 function draw() {
-	background(220);
+	background(69, 179, 224);
 	hill.update();
 	hill.draw();
 	sisyphus.update(hill.getY(sisyphus.x)); // update sisyphus position based on hill y-pos
 	sisyphus.draw();
+	
+	
 }
 
 function windowResized() {
@@ -42,7 +44,9 @@ class Hill {
 				x: i * (width / 50) + random(width),
 				y: random(height / 2, height),
 				size: random (5, 20),
-				type: random() > 0.5 ? 'rock' : 'foliage'
+				type: random() > 0.5 ? 'rock' : 'foliage',
+				init: false, // initialization flag
+				vertices: [] // vertices storage for rocks
 			});
 		}
 	}
@@ -84,9 +88,47 @@ class Hill {
 }
 	
 	drawDetail(x, y, size, type) {
-		if (type === 'rock') {
+    	if (type === 'rock') {
 			fill(128); // grey color for rocks
-			ellipse(x, y, size);
+			stroke(0); // black stroke for visibility
+
+			// determine pattern based on size
+			let pattern = size % 3;
+
+			beginShape();
+			if (pattern === 0) {
+				// first pattern
+				vertex(x - size / 2, y - size / 2);
+				vertex(x, y - size / 1.5);
+				vertex(x + size / 2, y - size / 2);
+				vertex(x + size / 1.5, y);
+				vertex(x + size / 2, y + size / 2);
+				vertex(x, y + size / 1.5);
+				vertex(x - size / 2, y + size / 2);
+				vertex(x - size / 1.5, y);
+			} else if (pattern === 1) {
+				// second pattern
+				vertex(x - size / 2, y);
+				vertex(x - size / 4, y - size / 4);
+				vertex(x, y - size / 2);
+				vertex(x + size / 4, y - size / 4);
+				vertex(x + size / 2, y);
+				vertex(x + size / 4, y + size / 4);
+				vertex(x, y + size / 2);
+				vertex(x - size / 4, y + size / 4);
+			} else {
+				// third pattern
+				vertex(x - size / 3, y - size / 3);
+				vertex(x, y - size / 2);
+				vertex(x + size / 3, y - size / 3);
+				vertex(x + size / 2, y);
+				vertex(x + size / 3, y + size / 3);
+				vertex(x, y + size / 2);
+				vertex(x - size / 3, y + size / 3);
+				vertex(x - size / 2, y);
+			}
+			endShape(CLOSE);
+			
 		} else { // drawing a bush with rectangles for leaves
 			// layering leaves with varying opacity for depth
 			const leafCount = 5; // total number of leaves in a bush
