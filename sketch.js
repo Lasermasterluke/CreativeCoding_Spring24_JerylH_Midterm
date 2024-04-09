@@ -85,13 +85,27 @@ class Hill {
 	
 	drawDetail(x, y, size, type) {
 		if (type === 'rock') {
-			fill(128);
+			fill(128); // grey color for rocks
 			ellipse(x, y, size);
-		} else {
-			fill(34, 139, 34);
-			ellipse(x, y, size, size * 1.5);
-		}
+		} else { // drawing a bush with rectangles for leaves
+			// layering leaves with varying opacity for depth
+			const leafCount = 5; // total number of leaves in a bush
+			for (let i = 0; i < leafCount; i++) {
+				fill(34, 139, 34, 150); // green for foliage with some transparency
+				const leafWidth = size * 0.6;
+				const leafHeight = size * 0.4;
+
+				// draw the main body of the bush
+				rect(x - leafWidth / 2, y - leafHeight / 2, leafWidth, leafHeight);
+
+				// draw additional "leaves" around the main body to simulate a bush
+				rect(x - size * 0.5, y - size * 0.2, leafWidth * 0.5, leafHeight * 0.5);
+				rect(x + size * 0.2, y - size * 0.1, leafWidth * 0.6, leafHeight * 0.6);
+				rect(x - size * 0.4, y + size * 0.1, leafWidth * 0.4, leafHeight * 0.4);
+        	}
+    	}
 	}
+
 	
 	update() {
 		this.offset += this.scrollSpeed;
