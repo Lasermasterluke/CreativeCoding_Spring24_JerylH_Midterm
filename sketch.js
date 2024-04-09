@@ -40,7 +40,7 @@ class Hill {
 			this.details.push({
 				originalX: i * (width / 50) + random(width),
 				x: i * (width / 50) + random(width),
-				y: random(height / 2, height) - 30,
+				y: random(height / 2, height),
 				size: random (5, 20),
 				type: random() > 0.5 ? 'rock' : 'foliage'
 			});
@@ -48,14 +48,16 @@ class Hill {
 	}
 	
 	draw() {
-		noFill();
+		fill(138, 69, 19);;
 		stroke(0);
 		beginShape();
+		vertex(0, height);
 		// draw the hill using noise
 		for (let x = 0; x < width; x++) {
 			let y = this.getY(x);
 			vertex(x, y);
 		}
+		vertex(width, height);
 		endShape();
 		
 		// scroll and draw details
@@ -65,15 +67,19 @@ class Hill {
     scrollDetails() {
         this.details.forEach(detail => {
             detail.x -= this.scrollSpeed * 200; // scroll horizontally
-
-            // scroll vertically based on slope. Adjust if the slope is steep.
-            detail.y -= this.slope * this.scrollSpeed * 200;
+			
+			// calculate the hill's y value at this x position to ensure details are beneath the line
+			let hillY = this.getY(detail.x);
 
             // reset details to the right side of the screen if they go out of bounds
-            if (detail.x < -detail.size || detail.y < -detail.size) {
-                detail.x = width + random(100); // place it off the right edge with some randomness
-                detail.y = random(height / 2, height); // randomize the y position
-            }
+			if (detail.x < -detail.size) { 
+				detail.originalX = width + random(100); // place it off the right edge with some randomness
+				detail.x = detail.originalX;
+
+				detail.y = random(hillY, height - detail.size / 2); // ranndomize y value between line and bottom of screen
+			} else {
+				detail.y = max(detail.y, hillY + detail.size / 2 + 20);
+			}
 
             this.drawDetail(detail.x, detail.y, detail.size, detail.type);
         });
