@@ -1,5 +1,7 @@
 // global variable for the hill
 let hill;
+let sisyphus;
+let clouds = [];
 
 function setup() {
 	createCanvas(windowWidth, windowHeight);
@@ -8,12 +10,35 @@ function setup() {
 	sisyphus = new Sisyphus(300);
 	frameRate(60);
 	angleMode(DEGREES);
+	for (let i = 0; i < 5; i++) { // create a few clouds
+        clouds.push({
+            x: random(width),
+            y: random(height / 4),
+            size: random(60, 120) // size of the cloud
+        });
+    }
 }
 
 function draw() {
 	background(69, 179, 224);
+	// draw and scroll clouds
+    for (let i = 0; i < clouds.length; i++) {
+    let cloud = clouds[i];
+    drawCloud(cloud);
+    cloud.x -= 1; // scroll speed
+
+    if (cloud.x < -200) { // reset cloud
+        clouds[i] = {
+            x: width + 100,
+            y: random(height / 4),
+            size: random(60, 120)
+        };
+    }
+}
+	
 	hill.update();
 	hill.draw();
+	
 	sisyphus.update(hill.getY(sisyphus.x)); // update sisyphus position based on hill y-pos
 	sisyphus.draw();
 	
@@ -22,6 +47,23 @@ function draw() {
 
 function windowResized() {
 	resizeCanvas(windowWidth, windowHeight);
+}
+
+function flyingPig() {
+	
+}
+
+function drawCloud(cloud) {
+    fill(255); // clouds are white
+    noStroke(); // no outline for a softer appearance
+	ellipse(cloud.x, cloud.y, 50, 50);
+    // main body of the cloud
+    ellipse(cloud.x, cloud.y, cloud.size, cloud.size * 0.6);
+
+    // additional ellipses for fluffiness
+    ellipse(cloud.x - cloud.size / 3, cloud.y, cloud.size / 2, cloud.size / 3);
+    ellipse(cloud.x + cloud.size / 3, cloud.y - cloud.size / 4, cloud.size / 2, cloud.size / 3);
+    ellipse(cloud.x + cloud.size / 4, cloud.y + cloud.size / 5, cloud.size / 3, cloud.size / 4);
 }
 
 class Hill {
