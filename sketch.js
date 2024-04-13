@@ -1,7 +1,9 @@
 // global variable for the hill
 let hill;
 let sisyphus;
-let clouds = [];
+let clouds = []; // array for storing clouds
+let acceleration = 0.0001; // rate of acceleration
+let maxScrollSpeed = 0.05;
 
 function setup() {
 	createCanvas(windowWidth, windowHeight);
@@ -49,10 +51,6 @@ function windowResized() {
 	resizeCanvas(windowWidth, windowHeight);
 }
 
-function flyingPig() {
-	
-}
-
 function drawCloud(cloud) {
     fill(255); // clouds are white
     noStroke(); // no outline for a softer appearance
@@ -80,15 +78,15 @@ class Hill {
 	
 	populateDetails() {
 		// function to populate the array to allow for scrolling foliage effect
-		for (let i = 0; i < 50; i++) {
+		for (let i = 0; i < 30; i++) {
+			let initialX = i * (width / 100) + random(width);
+        	let initialY = random(height / 2, height);
 			this.details.push({
-				originalX: i * (width / 50) + random(width),
-				x: i * (width / 50) + random(width),
-				y: random(height / 2, height),
-				size: random (5, 20),
-				type: random() > 0.5 ? 'rock' : 'foliage',
-				init: false, // initialization flag
-				vertices: [] // vertices storage for rocks
+				x: initialX,
+				y: initialY,
+				yOffset: initialY - this.getY(initialX), // Store the vertical offset from the hill's current y
+				size: random(5, 20),
+				type: random() > 0.5 ? 'rock' : 'foliage'
 			});
 		}
 	}
@@ -106,28 +104,30 @@ class Hill {
 		vertex(width, height);
 		endShape();
 		
-		// scroll and draw details
-		this.scrollDetails();
-	}
-	
-    scrollDetails() {
-        this.details.forEach(detail => {
-            detail.x -= this.scrollSpeed * 200; // scroll horizontally
-			
-			detail.y += Math.abs(this.slope * this.scrollSpeed * 200); 
-
-            // reset details to the right side of the screen if they go out of bounds
-			if (detail.x < -detail.size || detail.y > height) { 
-				detail.originalX = width + random(100); // place it off the right edge with some randomness
-				detail.x = detail.originalX;
-
-				// calculate the hill's y value at this x position to ensure details are beneath the line
-				let hillY = this.getY(detail.x);
-				detail.y = random(hillY + detail.size / 2, height - detail.size / 2);
-			}
+		this.details.forEach(detail => {
             this.drawDetail(detail.x, detail.y, detail.size, detail.type);
         });
-}
+	}
+	
+    scrollDetails(isScrollingBackward) {
+		this.details.forEach(detail => {
+			// calculate the new horizontal position
+			detail.x += isScrollingBackward ? this.scrollSpeed * 200 : -this.scrollSpeed * 200;
+
+			// wrap details to the opposite side of the canvas when they scroll off one side
+			if (detail.x < -50) {
+				detail.x = width + 50;  // wrap from left to right
+				detail.y = random(this.getY(detail.x) + 20, height)
+			} else if (detail.x > width + 50) {
+				detail.x = -50;  // wrap from right to left
+			}
+			
+			// adjust the vertical position based on the hill's current y value at the new x position
+			detail.y = this.getY(detail.x) + detail.yOffset;
+			
+		});
+	}
+
 	
 	drawDetail(x, y, size, type) {
     	if (type === 'rock') {
@@ -192,7 +192,17 @@ class Hill {
 
 	
 	update() {
-		this.offset += this.scrollSpeed;
+		if (keyIsDown(RIGHT_ARROW)) {
+			// allow scrolling only if sisyphus is not at the starting point or can move forward
+			this.offset += this.scrollSpeed;
+			this.scrollSpeed = max(this.scrollSpeed - acceleration, 0.01);
+			this.scrollDetails(false);
+		} else if (this.offset > 0) {
+			// if not pressing right and there's an offset, scroll back towards start
+			this.offset -= this.scrollSpeed;
+			this.scrollSpeed = min(this.scrollSpeed + acceleration, maxScrollSpeed);
+			this.scrollDetails(true);
+		}
 	}
 	
 	getY(x) {
