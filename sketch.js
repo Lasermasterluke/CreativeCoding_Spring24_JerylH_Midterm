@@ -4,25 +4,42 @@ let sisyphus;
 let clouds = []; // array for storing clouds
 let acceleration = 0.0001; // rate of acceleration
 let maxScrollSpeed = 0.05;
+let sisyphusVertices = []; // array for storing sisyphus
+let isMovingForward = 0; // flag for whether sisyphus is moving forward
 
 function setup() {
-	createCanvas(windowWidth, windowHeight);
+    createCanvas(windowWidth, windowHeight - 4);
 	// initialize hill & sisyphus
-	hill = new Hill();
-	sisyphus = new Sisyphus(300);
-	frameRate(60);
-	angleMode(DEGREES);
-	for (let i = 0; i < 5; i++) { // create a few clouds
+    hill = new Hill();
+    sisyphus = new Sisyphus(300);
+
+    frameRate(60);
+    angleMode(DEGREES);
+
+    // initialize clouds
+    for (let i = 0; i < 5; i++) {
         clouds.push({
             x: random(width),
             y: random(height / 4),
-            size: random(60, 120) // size of the cloud
+            size: random(60, 120),
         });
     }
+
+    // initialize the vertices for sisyphus
+    sisyphusVertices = [
+        { x: -10 + random(-3, 3), y: -15 + random(-3, 3) },
+        { x: 10 + random(-3, 3), y: -10 + random(-3, 3) },
+        { x: 15 + random(-3, 3), y: 0 + random(-3, 3) },
+        { x: 10 + random(-3, 3), y: 10 + random(-3, 3) },
+        { x: 0 + random(-3, 3), y: 15 + random(-3, 3) },
+        { x: -10 + random(-3, 3), y: 10 + random(-3, 3) },
+        { x: -15 + random(-3, 3), y: 0 + random(-3, 3) },
+    ];
 }
 
 function draw() {
 	background(69, 179, 224);
+	
 	// draw and scroll clouds
     for (let i = 0; i < clouds.length; i++) {
     let cloud = clouds[i];
@@ -94,6 +111,7 @@ class Hill {
 	draw() {
 		fill(138, 69, 19);;
 		stroke(0);
+		strokeWeight(1);
 		beginShape();
 		vertex(0, height);
 		// draw the hill using noise
@@ -197,11 +215,15 @@ class Hill {
 			this.offset += this.scrollSpeed;
 			this.scrollSpeed = max(this.scrollSpeed - acceleration, 0.01);
 			this.scrollDetails(false);
+			isMovingForward = 1;
 		} else if (this.offset > 0) {
 			// if not pressing right and there's an offset, scroll back towards start
 			this.offset -= this.scrollSpeed;
 			this.scrollSpeed = min(this.scrollSpeed + acceleration, maxScrollSpeed);
 			this.scrollDetails(true);
+			isMovingForward = 0;
+		} else {
+			isMovingForward = 2;
 		}
 	}
 	
@@ -213,19 +235,45 @@ class Hill {
 	}
 }
 
-class Sisyphus{
-	constructor(x) {
-		this.x = x; // fixed x-position
-		this.y = 0; // y changes with hill y value
-		this.height = 30;
-	}
-	
-	update(y) {
-		this.y = y - this.height / 2; // update y-posiition with hill y value
-	}
-	
-	draw() {
-		fill(0);
-		ellipse(this.x, this.y, this.height, this.height); // placeholder sisyphus
-	}
+class Sisyphus {
+    constructor(x) {
+        this.x = x; // fixed x position
+        this.y = 0; // updated based on hill y
+        this.height = 30; // general size of the rock
+        this.rotation = 0; // initial rotation angle
+        this.rotationSpeed = 5; // speed of rotation in degrees
+    }
+
+    update(y) {
+        this.y = y - this.height / 2;
+        // adjust rotation based on movement direction
+        if (isMovingForward === 1) {
+            this.rotation += this.rotationSpeed; // rotate clockwise when moving forward
+        } else if (isMovingForward === 0) {
+            this.rotation -= this.rotationSpeed; // rotate counterclockwise when moving backward
+        }
+
+        // keep the rotation between 0 and 360 degrees
+        this.rotation = (this.rotation + 360) % 360;
+    }
+
+    draw() {
+        fill(128);
+        stroke(0);
+        strokeWeight(2);
+		
+        push();
+        translate(this.x, this.y); // move to sisyphus's position
+        rotate(this.rotation); // rotate by the defined angle
+
+        beginShape();
+        // loop through each vertex in sisyphusVertices
+        for (let i = 0; i < sisyphusVertices.length; i++) {
+            const v = sisyphusVertices[i]; // get current vertex
+            vertex(v.x, v.y); // plot each vertex
+        }
+        endShape(CLOSE);
+
+        pop();
+    }
 }
